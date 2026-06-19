@@ -1,6 +1,6 @@
 import { useContext } from "react";
 // context
-import { SpotifyContext } from "../../contexts/SpotifyContextProvider";
+import { SpotifyContext } from "../contexts/SpotifyContextProvider";
 // icons
 import { MdFavorite, MdOutlineFavoriteBorder } from "react-icons/md";
 

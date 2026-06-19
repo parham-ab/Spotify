@@ -3,7 +3,7 @@ import { MdEmail } from "react-icons/md";
 import { FaInternetExplorer } from "react-icons/fa";
 import { BsGithub, BsLinkedin } from "react-icons/bs";
 // hooks
-import useTitle from "./hooks/useTitle";
+import useTitle from "../hooks/useTitle";
 
 const ContactUs = () => {
   // title

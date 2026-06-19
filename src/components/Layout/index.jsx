@@ -5,8 +5,8 @@ import Sidebar from "./Sidebar";
 const Layout = ({ children }) => {
   return (
     <>
-      <Header className="col-lg-2 col-md-3" />
-      <div className="d-flex" style={{ height: "60vh" }}>
+      <Header className="lg:col-span-2 md:col-span-3" />
+      <div className="flex h-[60vh]">
         <Sidebar />
         {children}
       </div>

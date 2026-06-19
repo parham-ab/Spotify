@@ -3,7 +3,7 @@ import { SpotifyContext } from "../contexts/SpotifyContextProvider";
 // icons
 import { MdFavorite, MdOutlineFavoriteBorder } from "react-icons/md";
 import { TbMoodCry } from "react-icons/tb";
-import useTitle from "./hooks/useTitle";
+import useTitle from "../hooks/useTitle";
 
 const Favorites = () => {
   const { songData, toggleFavorite, playHandle } = useContext(SpotifyContext);

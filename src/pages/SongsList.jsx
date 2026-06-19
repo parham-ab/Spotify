@@ -1,6 +1,6 @@
 // context
 import { useContext } from "react";
-import { SpotifyContext } from "../../contexts/SpotifyContextProvider";
+import { SpotifyContext } from "../contexts/SpotifyContextProvider";
 // hooks
 import useTitle from "../hooks/useTitle";
 // components
