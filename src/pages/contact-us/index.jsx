@@ -1,9 +1,6 @@
-import useTitle from "../../hooks/useTitle";
 import links from "./constants/links";
 
 const ContactUs = () => {
-  useTitle("React Spotify - 📫");
-
   return (
     <section className="flex flex-col items-center justify-center h-full gap-10 px-6 py-16 bg-black">
       {/* Heading */}
