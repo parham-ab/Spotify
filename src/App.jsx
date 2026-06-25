@@ -1,12 +1,12 @@
 import { Route, Routes, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import AudioProvider from "./providers/AudioProvider.jsx";
 import routes from "./routes/index.jsx";
 import Layout from "./components/Layout";
-import SpotifyContextProvider from "./contexts/SpotifyContextProvider.jsx";
-import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
-    <SpotifyContextProvider>
+    <AudioProvider>
       <Layout>
         <Routes>
           {routes?.map((item) => {
@@ -23,7 +23,7 @@ const App = () => {
         </Routes>
       </Layout>
       <Toaster position="top-center" reverseOrder={false} />
-    </SpotifyContextProvider>
+    </AudioProvider>
   );
 };
 

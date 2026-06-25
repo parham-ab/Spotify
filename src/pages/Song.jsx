@@ -1,10 +1,11 @@
-import { useContext } from "react";
-import { SpotifyContext } from "../contexts/SpotifyContextProvider";
 import { MdFavorite, MdOutlineFavoriteBorder } from "react-icons/md";
 import { BsPlayFill, BsPauseFill } from "react-icons/bs";
+import useSpotifyStore from "../store/spotifyStore";
 
 const Song = ({ item }) => {
-  const { playHandle, toggleFavorite, songTrack } = useContext(SpotifyContext);
+  const songData = useSpotifyStore((s) => s.songData);
+  const playHandle = useSpotifyStore((s) => s.playHandle);
+  const toggleFavorite = useSpotifyStore((s) => s.toggleFavorite);
   return (
     <div
       className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer group transition-colors duration-150
@@ -31,10 +32,10 @@ const Song = ({ item }) => {
             className={`text-sm font-medium truncate leading-tight
               ${item.active ? "text-[#1DB954]" : "text-white"}`}
           >
-            {item.title}
+            {item?.title}
           </span>
           <span className="text-xs text-zinc-500 truncate mt-0.5">
-            {item.singer}
+            {item?.singer}
           </span>
         </div>
       </div>

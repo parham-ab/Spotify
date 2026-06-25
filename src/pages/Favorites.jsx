@@ -1,11 +1,17 @@
-import { useContext, useEffect, useState } from "react";
-import { SpotifyContext } from "../contexts/SpotifyContextProvider";
+import { useEffect, useState } from "react";
 import { MdFavorite, MdOutlineFavoriteBorder } from "react-icons/md";
 import { BsPlayFill, BsPauseFill } from "react-icons/bs";
 import { TbMoodCry } from "react-icons/tb";
+import useSpotifyStore from "../store/spotifyStore";
 
 const Favorites = () => {
-  const { songData, toggleFavorite, playHandle } = useContext(SpotifyContext);
+  const songData = useSpotifyStore((s) => s.songData);
+  const getCurrentSong = useSpotifyStore((s) => s.getCurrentSong);
+  const currentSong = getCurrentSong();
+  const playHandle = useSpotifyStore((s) => s.playHandle);
+  const toggleFavorite = useSpotifyStore((s) => s.toggleFavorite);
+  const nextSongHandle = useSpotifyStore((s) => s.nextSongHandle);
+  const prevSongHandle = useSpotifyStore((s) => s.prevSongHandle);
   const [favoriteSelections, setFavoriteSelections] = useState([]);
 
   useEffect(() => {
@@ -14,7 +20,7 @@ const Favorites = () => {
 
   return (
     <div className="flex flex-col h-full overflow-auto bg-black px-3 py-4">
-      <p className="text-[11px] uppercase tracking-widest text-zinc-600 mb-4 px-2">
+      <p className="text-[11px] uppercase tracking-widest text-zinc-300 mb-4 px-2">
         Liked songs
       </p>
 

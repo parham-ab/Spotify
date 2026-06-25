@@ -1,68 +1,42 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdFavorite, MdOutlineFavoriteBorder } from "react-icons/md";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import { SpotifyContext } from "../../contexts/SpotifyContextProvider";
+import useSpotifyStore from "../../store/spotifyStore";
 
-const Header = () => {
-  const {
-    songData,
-    songTrack,
-    toggleFavorite,
-    currentSong,
-    setCurrentSong,
-    nextSongHandle,
-    prevSongHandle,
-  } = useContext(SpotifyContext);
-
-  const [defaultSong, setDefaultSong] = useState([]);
-  const [changed, setChanged] = useState(false);
-  const [songTimeLive, setSongTimeLive] = useState(0);
-  const [songTimeFull, setSongTimeFull] = useState(0);
-
+const SongDisplay = ({
+  item,
+  isActive,
+  songTimeLive,
+  songTimeFull,
+  progressPercent,
+  onSeek,
+  onPlay,
+  onPrev,
+  onNext,
+  onFavorite,
+}) => {
   const readableTime = (time) =>
     `${Math.trunc(time / 60)}:${("0" + Math.trunc(time % 60)).slice(-2)}`;
 
-  useEffect(() => {
-    if (!currentSong.length) {
-      const intendedSong = songData.find((item) => item.title === "Style");
-      setDefaultSong(intendedSong);
-    }
-    const playingSong = songData.filter((item) => item.isPlaying);
-    setCurrentSong(playingSong);
-  }, [songData]);
-
-  useEffect(() => {
-    setInterval(() => {
-      setSongTimeLive(songTrack.current.currentTime);
-      setSongTimeFull(songTrack.current.duration);
-    }, 1000);
-  }, [currentSong]);
-
-  const playHandle = (id) => {
-    const songIndex = songData.findIndex((item) => item.id === id);
-    const newSongData = [...songData];
-    newSongData[songIndex].isPlaying = !newSongData[songIndex].isPlaying;
-    if (newSongData[songIndex].isPlaying) {
-      songTrack.current.play();
-    } else {
-      songTrack.current.pause();
-    }
-    setChanged(!changed);
-  };
-
-  const progressPercent = songTimeFull
-    ? (songTimeLive / songTimeFull) * 100
-    : 0;
-
-  const SongDisplay = ({ item, isActive }) => (
+  return (
     <div className="flex items-center gap-6 w-full px-6 py-4">
       {/* Album cover */}
       <div className="hidden sm:block shrink-0">
         <div
-          className="w-30 h-30 rounded-lg bg-cover bg-center bg-zinc-900 shadow-lg"
+          className="relative w-16 h-16 rounded-lg bg-cover bg-center bg-zinc-900 shadow-lg group/cover cursor-pointer"
           style={{ backgroundImage: `url(${item?.cover})` }}
-        />
+          onClick={() => item?.id && onPlay(item.id)}
+        >
+          <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-200" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cover:opacity-100 transition-opacity duration-200">
+            {item?.isPlaying ? (
+              <BsPauseFill className="text-white text-xl z-10" />
+            ) : (
+              <BsPlayFill className="text-white text-xl ml-0.5 z-10" />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Title + singer */}
@@ -75,42 +49,14 @@ const Header = () => {
         </p>
       </div>
 
-      {/* Controls + scrubber — center */}
+      {/* Controls + scrubber */}
       <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-        {/* Playback buttons */}
-        {isActive && (
-          <div className="flex items-center gap-5">
-            <button
-              onClick={prevSongHandle}
-              className="text-zinc-500 hover:text-white transition-colors duration-150"
-            >
-              <FaChevronLeft className="text-sm" />
-            </button>
-            <button
-              onClick={() => playHandle(item.id)}
-              className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md"
-            >
-              {item.isPlaying ? (
-                <BsPauseFill className="text-black text-base" />
-              ) : (
-                <BsPlayFill className="text-black text-base ml-0.5" />
-              )}
-            </button>
-            <button
-              onClick={nextSongHandle}
-              className="text-zinc-500 hover:text-white transition-colors duration-150"
-            >
-              <FaChevronRight className="text-sm" />
-            </button>
-          </div>
-        )}
-
         {/* Scrubber */}
         <div className="w-full flex items-center gap-3">
           <span className="text-[10px] text-zinc-600 tabular-nums shrink-0">
             {isActive ? readableTime(songTimeLive) : "0:00"}
           </span>
-          <div className="relative flex-1 h-1 rounded-full bg-zinc-800 group">
+          <div className="relative flex-1 h-1 rounded-full bg-zinc-800">
             <div
               className="absolute top-0 left-0 h-full bg-[#1DB954] rounded-full pointer-events-none"
               style={{ width: `${progressPercent}%` }}
@@ -122,9 +68,7 @@ const Header = () => {
                 min={0}
                 max={isNaN(songTimeFull) ? 100 : songTimeFull}
                 value={songTimeLive}
-                onChange={(e) =>
-                  (songTrack.current.currentTime = e.target.value)
-                }
+                onChange={onSeek}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
             )}
@@ -135,12 +79,38 @@ const Header = () => {
               : "0:00"}
           </span>
         </div>
+        {isActive && (
+          <div className="flex items-center gap-5">
+            <button
+              onClick={onPrev}
+              className="text-zinc-500 hover:text-white transition-colors duration-150"
+            >
+              <FaChevronLeft className="text-sm" />
+            </button>
+            <button
+              onClick={() => onPlay(item.id)}
+              className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md cursor-pointer"
+            >
+              {item?.isPlaying ? (
+                <BsPauseFill className="text-black text-base" />
+              ) : (
+                <BsPlayFill className="text-black text-base ml-0.5" />
+              )}
+            </button>
+            <button
+              onClick={onNext}
+              className="text-zinc-500 hover:text-white transition-colors duration-150"
+            >
+              <FaChevronRight className="text-sm" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Favorite */}
       <div className="shrink-0">
         <button
-          onClick={() => toggleFavorite(item?.id)}
+          onClick={() => onFavorite(item?.id)}
           className="transition-transform duration-150 hover:scale-110"
         >
           {item?.isFavorite ? (
@@ -152,15 +122,68 @@ const Header = () => {
       </div>
     </div>
   );
+};
+
+const Header = () => {
+  const songData = useSpotifyStore((s) => s.songData);
+  const getCurrentSong = useSpotifyStore((s) => s.getCurrentSong);
+  const songTrack = useSpotifyStore((s) => s.songTrack);
+  const toggleFavorite = useSpotifyStore((s) => s.toggleFavorite);
+  const nextSongHandle = useSpotifyStore((s) => s.nextSongHandle);
+  const prevSongHandle = useSpotifyStore((s) => s.prevSongHandle);
+  const playHandle = useSpotifyStore((s) => s.playHandle);
+
+  const currentSong = getCurrentSong();
+  const defaultSong =
+    songData.find((item) => item.title === "Style") ?? songData[0];
+
+  const [songTimeLive, setSongTimeLive] = useState(0);
+  const [songTimeFull, setSongTimeFull] = useState(0);
+
+  useEffect(() => {
+    if (!songTrack) return;
+    const interval = setInterval(() => {
+      setSongTimeLive(songTrack.currentTime);
+      setSongTimeFull(songTrack.duration);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [currentSong, songTrack]);
+
+  const progressPercent = songTimeFull
+    ? (songTimeLive / songTimeFull) * 100
+    : 0;
 
   return (
     <header className="bg-black border-b border-white/[0.06] w-full">
       {currentSong.length ? (
-        currentSong?.map((item) => (
-          <SongDisplay key={item.id} item={item} isActive={true} />
+        currentSong.map((item) => (
+          <SongDisplay
+            key={item.id}
+            item={item}
+            isActive={true}
+            songTimeLive={songTimeLive}
+            songTimeFull={songTimeFull}
+            progressPercent={progressPercent}
+            onSeek={(e) => (songTrack.currentTime = e.target.value)}
+            onPlay={playHandle}
+            onPrev={prevSongHandle}
+            onNext={nextSongHandle}
+            onFavorite={toggleFavorite}
+          />
         ))
       ) : (
-        <SongDisplay item={defaultSong} isActive={false} />
+        <SongDisplay
+          item={defaultSong}
+          isActive={false}
+          songTimeLive={0}
+          songTimeFull={0}
+          progressPercent={0}
+          onSeek={() => {}}
+          onPlay={() => {}}
+          onPrev={() => {}}
+          onNext={() => {}}
+          onFavorite={toggleFavorite}
+        />
       )}
     </header>
   );
